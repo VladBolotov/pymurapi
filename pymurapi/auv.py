@@ -52,8 +52,9 @@ class Auv(api.MurApiBase, threading.Thread):
                                    self.motors_power[5],
                                    self.motors_power[6],
                                    self.motors_power[7],
-                                   self.motors_power[8],
-                                   self.colorRGB,
+                                   self.colorRGB[0],
+                                   self.colorRGB[1],
+                                   self.colorRGB[2],
                                    self.on_delay,
                                    self.off_delay)
 
