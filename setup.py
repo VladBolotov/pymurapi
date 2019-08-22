@@ -3,7 +3,7 @@ from setuptools import setup
 setup(name='pymurapi',
       version='0.0.1',
       description='murSimulator/murAUV API for python',
-      url='http://github.com/',
+      url='https://github.com/VladBolotov/pymurapi',
       author='Vladislav Bolotov',
       author_email='vlad@murproject.com',
       license='MIT',
