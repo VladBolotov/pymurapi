@@ -8,12 +8,12 @@ from pymurapi import api
 
 class Simulator(api.MurApiBase, threading.Thread):
     def __init__(self):
-        threading.Thread.__init__(self)
+        threading.Thread.__init__(self, daemon=True)
         api.MurApiBase.__init__(self)
 
         ctx = zmq.Context()
-        self.unpacker = struct.Struct('8b7f')
-        self.packer = struct.Struct('4b')
+        self.unpacker = struct.Struct('=8b7f')
+        self.packer = struct.Struct('=4b')
         self.front_socket = ctx.socket(zmq.SUB)
         self.bottom_socket = ctx.socket(zmq.SUB)
         self.mcu_socket = ctx.socket(zmq.SUB)

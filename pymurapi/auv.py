@@ -6,12 +6,12 @@ from pymurapi import api
 
 class Auv(api.MurApiBase, threading.Thread):
     def __init__(self):
-        threading.Thread.__init__(self)
+        threading.Thread.__init__(self, daemon=True)
         api.MurApiBase.__init__(self)
 
         ctx = zmq.Context()
-        self.unpacker = struct.Struct('7f')
-        self.packer = struct.Struct('b8h3B2f')
+        self.unpacker = struct.Struct('=7f')
+        self.packer = struct.Struct('=b8h3B2f')
         self.telemetry_socket = ctx.socket(zmq.SUB)
         self.control_socket = ctx.socket(zmq.PAIR)
 
@@ -41,7 +41,8 @@ class Auv(api.MurApiBase, threading.Thread):
         self.start()
 
     def _update(self):
-        self.yaw, self.pitch, self.roll, self.depth, self.temperature, self.pressure, self.voltage = self.unpacker.unpack(self.telemetry_socket.recv())
+        self.yaw, self.pitch, self.roll, self.depth, self.temperature, self.pressure, self.voltage = self.unpacker.unpack(
+            self.telemetry_socket.recv())
 
         message = self.packer.pack(self.is_thrust_in_ms,
                                    self.motors_power[0],
@@ -59,4 +60,3 @@ class Auv(api.MurApiBase, threading.Thread):
                                    self.off_delay)
 
         self.control_socket.send(message)
-
