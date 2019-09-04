@@ -17,7 +17,7 @@ def mur_init():
         else:
             sub = auv.Auv()
             sub.prepare()
-            mur_init.mur_object = sub
+            _mur_object = sub
             return _mur_object
     else:
         return _mur_object
