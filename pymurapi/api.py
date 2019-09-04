@@ -10,9 +10,9 @@ class MurApiBase(object):
         self.voltage = 0.0
 
         self.is_thrust_in_ms = False
-        self.colorRGB = [0, 0, 0]
+        self.colorRGB = [128, 0, 128]
         self.motors_power = [0, 0, 0, 0, 0, 0, 0, 0]
-        self.on_delay = 0.0
+        self.on_delay = 1.0
         self.off_delay = 0.0
 
     def _prepare(self):
@@ -49,7 +49,7 @@ class MurApiBase(object):
             return
         if abs(power) > 32767:
             return
-        self.motors_power[motor_id] = power
+        self.motors_power[motor_id] = int(power)
 
     def set_enable_power_in_ms(self, enabled):
         """Set power in ms mode enabled(True)  or disabled(False)"""
