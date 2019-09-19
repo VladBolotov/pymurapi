@@ -2,6 +2,7 @@ import threading
 import zmq
 import cv2
 import struct
+import time
 import numpy as np
 from pymurapi import api
 
@@ -30,6 +31,7 @@ class Simulator(api.MurApiBase, threading.Thread):
     def run(self):
         while True:
             self._update()
+            time.sleep(0.001)
 
     def prepare(self):
         bottom_image_url = "tcp://127.0.0.1:1771"

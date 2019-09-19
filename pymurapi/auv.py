@@ -1,6 +1,7 @@
 import threading
 import zmq
 import struct
+import time
 from pymurapi import api
 
 
@@ -26,6 +27,7 @@ class Auv(api.MurApiBase, threading.Thread):
     def run(self):
         while True:
             self._update()
+            time.sleep(0.001)
 
     def prepare(self):
         telemetry_url = "tcp://127.0.0.1:2001"
