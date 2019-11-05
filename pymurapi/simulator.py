@@ -13,17 +13,34 @@ class Simulator(api.MurApiBase, threading.Thread):
         api.MurApiBase.__init__(self)
 
         ctx = zmq.Context()
-        self.unpacker = struct.Struct('=8b7f')
-        self.packer = struct.Struct('=4b')
+        self.unpacker = struct.Struct('=7f')
+        self.packer = struct.Struct('=b8h3B2f')
         self.front_socket = ctx.socket(zmq.SUB)
         self.bottom_socket = ctx.socket(zmq.SUB)
         self.mcu_socket = ctx.socket(zmq.SUB)
         self.motors_socket = ctx.socket(zmq.PAIR)
         self.front_image = np.zeros((240, 320, 3), np.uint8)
         self.bottom_image = np.zeros((240, 320, 3), np.uint8)
+        self.colorRGB = [0, 0, 0]
 
     def get_image_front(self):
         return self.front_image
+
+    def open_grabber(self):
+        self.colorRGB[0] = 1
+
+    def close_grabber(self):
+        self.colorRGB[0] = 0
+
+    def shoot(self):
+        self.colorRGB[1] += 1
+        if self.colorRGB[1] > 100:
+            self.colorRGB[1] = 1
+
+    def drop(self):
+        self.colorRGB[2] += 1
+        if self.colorRGB[2] > 100:
+            self.colorRGB[2] = 1
 
     def get_image_bottom(self):
         return self.bottom_image
@@ -31,7 +48,7 @@ class Simulator(api.MurApiBase, threading.Thread):
     def run(self):
         while True:
             self._update()
-            time.sleep(0.001)
+            time.sleep(0.020)
 
     def prepare(self):
         bottom_image_url = "tcp://127.0.0.1:1771"
@@ -59,14 +76,24 @@ class Simulator(api.MurApiBase, threading.Thread):
     def _update(self):
         front_image_jpg = np.fromstring(self.front_socket.recv(), dtype='uint8')
         bottom_image_jpg = np.fromstring(self.bottom_socket.recv(), dtype='uint8')
-        _, _, _, _, _, _, _, _, pitch, roll, yaw, depth, _, _, _ = self.unpacker.unpack(self.mcu_socket.recv())
+        self.yaw, self.pitch, self.roll, self.depth, self.temperature, self.pressure, self.voltage = self.unpacker.unpack(
+            self.mcu_socket.recv())
 
-        msg = self.packer.pack(self.motors_power[0], self.motors_power[1], self.motors_power[2], self.motors_power[3])
-        self.motors_socket.send(msg)
+        message = self.packer.pack(self.is_thrust_in_ms,
+                                   self.motors_power[0],
+                                   self.motors_power[1],
+                                   self.motors_power[2],
+                                   self.motors_power[3],
+                                   self.motors_power[4],
+                                   self.motors_power[5],
+                                   self.motors_power[6],
+                                   self.motors_power[7],
+                                   self.colorRGB[0],
+                                   self.colorRGB[1],
+                                   self.colorRGB[2],
+                                   self.on_delay,
+                                   self.off_delay)
+        self.motors_socket.send(message)
 
         self.front_image = cv2.imdecode(front_image_jpg, 1)
         self.bottom_image = cv2.imdecode(bottom_image_jpg, 1)
-        self.pitch = pitch
-        self.roll = roll
-        self.yaw = yaw
-        self.depth = depth
