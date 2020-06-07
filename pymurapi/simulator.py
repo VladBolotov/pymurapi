@@ -13,7 +13,7 @@ class Simulator(api.MurApiBase, threading.Thread):
         api.MurApiBase.__init__(self)
 
         ctx = zmq.Context()
-        self.unpacker = struct.Struct('=7f')
+        self.unpacker = struct.Struct('=15f')
         self.packer = struct.Struct('=b8h3B2f')
         self.front_socket = ctx.socket(zmq.SUB)
         self.bottom_socket = ctx.socket(zmq.SUB)
@@ -22,6 +22,8 @@ class Simulator(api.MurApiBase, threading.Thread):
         self.front_image = np.zeros((240, 320, 3), np.uint8)
         self.bottom_image = np.zeros((240, 320, 3), np.uint8)
         self.colorRGB = [0, 0, 0]
+        self.pinger_angles = [0.0, 0.0, 0.0, 0.0]
+        self.pinger_distances = [0.0, 0.0, 0.0, 0.0]
 
     def get_image_front(self):
         return self.front_image
@@ -33,14 +35,19 @@ class Simulator(api.MurApiBase, threading.Thread):
         self.colorRGB[0] = 0
 
     def shoot(self):
-        self.colorRGB[1] += 1
+        self.colorRGB[1] += 2
         if self.colorRGB[1] > 100:
             self.colorRGB[1] = 1
 
     def drop(self):
-        self.colorRGB[2] += 1
+        self.colorRGB[2] += 2
         if self.colorRGB[2] > 100:
             self.colorRGB[2] = 1
+
+    def get_pinger_data(self, pinger_id):
+        if pinger_id < 0 or pinger_id > 3:
+            return 0.0, 0.0
+        return self.pinger_angles[pinger_id], self.pinger_distances[pinger_id]
 
     def get_image_bottom(self):
         return self.bottom_image
@@ -76,8 +83,24 @@ class Simulator(api.MurApiBase, threading.Thread):
     def _update(self):
         front_image_jpg = np.fromstring(self.front_socket.recv(), dtype='uint8')
         bottom_image_jpg = np.fromstring(self.bottom_socket.recv(), dtype='uint8')
-        self.yaw, self.pitch, self.roll, self.depth, self.temperature, self.pressure, self.voltage = self.unpacker.unpack(
-            self.mcu_socket.recv())
+
+        data = self.mcu_socket.recv()
+
+        self.yaw, \
+        self.pitch, \
+        self.roll, \
+        self.depth, \
+        self.temperature, \
+        self.pressure, \
+        self.voltage, \
+        self.pinger_angles[0], \
+        self.pinger_angles[1], \
+        self.pinger_angles[2], \
+        self.pinger_angles[3], \
+        self.pinger_distances[0], \
+        self.pinger_distances[1], \
+        self.pinger_distances[2], \
+        self.pinger_distances[3] = self.unpacker.unpack(data)
 
         message = self.packer.pack(self.is_thrust_in_ms,
                                    self.motors_power[0],
