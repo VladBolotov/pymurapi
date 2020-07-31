@@ -2,11 +2,14 @@ from pymurapi import api
 from pymurapi import simulator
 from pymurapi import auv
 from pymurapi.usv import Usv
+from enum import Enum
 
 _mur_object = None
+AUV = "AUV"
+USV = "USV"
 
 
-def mur_init():
+def auv_init():
     import sys
     global _mur_object
     if _mur_object is None:
@@ -33,3 +36,19 @@ def usv_init():
         return _mur_object
     else:
         return _mur_object
+
+
+_init_switcher = {
+    AUV: auv_init,
+    USV: usv_init
+}
+
+
+def mur_init(vehicle_type=AUV):
+    global _init_switcher
+    try:
+        return _init_switcher[vehicle_type]()
+    except KeyError as e:
+        print("Bad vehicle type in mur_init", e)
+        exit(-1)
+
