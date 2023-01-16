@@ -13,7 +13,7 @@ class Simulator(api.MurApiBase, threading.Thread):
         api.MurApiBase.__init__(self)
 
         ctx = zmq.Context()
-        self.unpacker = struct.Struct('=15f')
+        self.unpacker = struct.Struct('=15f3B3H')
         self.packer = struct.Struct('=b8h3B2f')
         self.front_socket = ctx.socket(zmq.SUB)
         self.bottom_socket = ctx.socket(zmq.SUB)
@@ -24,6 +24,13 @@ class Simulator(api.MurApiBase, threading.Thread):
         self.colorRGB = [0, 0, 0]
         self.pinger_angles = [0.0, 0.0, 0.0, 0.0]
         self.pinger_distances = [0.0, 0.0, 0.0, 0.0]
+        self.hydrophone_signals_tr = [0]
+        self.hydrophone_signals_tl = [0]
+        self.hydrophone_signals_fr = [0]
+        self.hydrophone_distances_tr = [0]
+        self.hydrophone_distances_tl = [0]
+        self.hydrophone_distances_fr = [0]
+
 
     def get_image_front(self):
         return self.front_image
@@ -49,6 +56,10 @@ class Simulator(api.MurApiBase, threading.Thread):
             return 0.0, 0.0
         return self.pinger_angles[pinger_id], self.pinger_distances[pinger_id]
 
+    def get_hydrophone_signal(self):
+        return self.hydrophone_signals_tr[0], self.hydrophone_signals_tl[0], self.hydrophone_signals_fr[0], \
+        self.hydrophone_distances_tr[0] / 100, self.hydrophone_distances_tl[0] / 100, self.hydrophone_distances_fr[0] / 100
+        
     def get_image_bottom(self):
         return self.bottom_image
 
@@ -100,7 +111,13 @@ class Simulator(api.MurApiBase, threading.Thread):
         self.pinger_distances[0], \
         self.pinger_distances[1], \
         self.pinger_distances[2], \
-        self.pinger_distances[3] = self.unpacker.unpack(data)
+        self.pinger_distances[3], \
+        self.hydrophone_signals_tr[0], \
+        self.hydrophone_signals_tl[0], \
+        self.hydrophone_signals_fr[0], \
+        self.hydrophone_distances_tr[0], \
+        self.hydrophone_distances_tl[0], \
+        self.hydrophone_distances_fr[0] = self.unpacker.unpack(data)
 
         message = self.packer.pack(self.is_thrust_in_ms,
                                    self.motors_power[0],
