@@ -12,35 +12,18 @@ def auv_init():
     import sys
     global _mur_object
     if _mur_object is None:
-        #if sys.platform == 'win32':
-        sim = simulator.Simulator()
-        sim.prepare()
-        _mur_object = sim
-        return _mur_object
-        #else:
-            #sub = auv.Auv()
-            #sub.prepare()
-            #_mur_object = sub
-            #return _mur_object
+        if sys.platform == 'win32':
+            sim = simulator.Simulator()
+            sim.prepare()
+            _mur_object = sim
+            return _mur_object
+        else:
+            sub = auv.Auv()
+            sub.prepare()
+            _mur_object = sub
+            return _mur_object
     else:
         return _mur_object
-
-#def auv_init():
-    #import sys
-    #global _mur_object
-    #if _mur_object is None:
-        #if sys.platform == 'win32':
-            #sim = simulator.Simulator()
-            #sim.prepare()
-            #_mur_object = sim
-            #return _mur_object
-        #else:
-            #sub = auv.Auv()
-            #sub.prepare()
-            #_mur_object = sub
-            #return _mur_object
-    #else:
-        #return _mur_object
 
 
 def usv_init():
