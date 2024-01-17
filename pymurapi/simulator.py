@@ -13,7 +13,7 @@ class Simulator(api.MurApiBase, threading.Thread):
         api.MurApiBase.__init__(self)
 
         ctx = zmq.Context()
-        self.unpacker = struct.Struct('=15f3B3H')
+        self.unpacker = struct.Struct('=7f3B3H')
         self.packer = struct.Struct('=b8h3B2f')
         self.front_socket = ctx.socket(zmq.SUB)
         self.bottom_socket = ctx.socket(zmq.SUB)
@@ -22,8 +22,6 @@ class Simulator(api.MurApiBase, threading.Thread):
         self.front_image = np.zeros((240, 320, 3), np.uint8)
         self.bottom_image = np.zeros((240, 320, 3), np.uint8)
         self.colorRGB = [0, 0, 0]
-        self.pinger_angles = [0.0, 0.0, 0.0, 0.0]
-        self.pinger_distances = [0.0, 0.0, 0.0, 0.0]
         self.hydrophone_signals_tr = [0]
         self.hydrophone_signals_tl = [0]
         self.hydrophone_signals_fr = [0]
@@ -50,11 +48,6 @@ class Simulator(api.MurApiBase, threading.Thread):
         self.colorRGB[2] += 2
         if self.colorRGB[2] > 100:
             self.colorRGB[2] = 1
-
-    def get_pinger_data(self, pinger_id):
-        if pinger_id < 0 or pinger_id > 3:
-            return 0.0, 0.0
-        return self.pinger_angles[pinger_id], self.pinger_distances[pinger_id]
 
     def get_hydrophone_signal(self):
         return self.hydrophone_signals_tr[0], self.hydrophone_signals_tl[0], self.hydrophone_signals_fr[0], \
@@ -104,14 +97,6 @@ class Simulator(api.MurApiBase, threading.Thread):
         self.temperature, \
         self.pressure, \
         self.voltage, \
-        self.pinger_angles[0], \
-        self.pinger_angles[1], \
-        self.pinger_angles[2], \
-        self.pinger_angles[3], \
-        self.pinger_distances[0], \
-        self.pinger_distances[1], \
-        self.pinger_distances[2], \
-        self.pinger_distances[3], \
         self.hydrophone_signals_tr[0], \
         self.hydrophone_signals_tl[0], \
         self.hydrophone_signals_fr[0], \
