@@ -11,7 +11,7 @@ class Auv(api.MurApiBase, threading.Thread):
         api.MurApiBase.__init__(self)
 
         ctx = zmq.Context()
-        self.telemetry_unpacker = struct.Struct('=7f')
+        self.telemetry_unpacker = struct.Struct('=7fI')
         self.control_packer = struct.Struct('=b8h3B2f')
         self.telemetry_v2_unpacker = struct.Struct('=4B')
         self.control_v2_packer = struct.Struct('=78B')
@@ -60,7 +60,7 @@ class Auv(api.MurApiBase, threading.Thread):
         self.start()
 
     def _update(self):
-        self.yaw, self.pitch, self.roll, self.depth, self.temperature, self.pressure, self.voltage = self.telemetry_unpacker.unpack(
+        self.yaw, self.pitch, self.roll, self.depth, self.temperature, self.pressure, self.voltage, self.state_of_charge = self.telemetry_unpacker.unpack(
             self.telemetry_socket.recv())
 
         if self.telemetry_v2_socket.poll(0):
