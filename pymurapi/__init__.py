@@ -8,7 +8,6 @@ _mur_object = None
 AUV = "AUV"
 USV = "USV"
 
-
 def auv_init():
     import sys
     global _mur_object
