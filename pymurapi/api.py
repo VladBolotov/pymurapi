@@ -12,6 +12,7 @@ class MurApiBase(object):
         self.temperature = 0.0
         self.pressure = 0.0
         self.voltage = 0.0
+        self.state_of_charge = 0
 
         self.is_thrust_in_ms = False
         self.colorRGB = [0, 30, 0]
@@ -96,6 +97,10 @@ class MurApiBase(object):
     def get_voltage(self):
         """Returns current voltage in volts. i.e. 12.3"""
         return self.voltage
+    
+    def get_state_of_charge(self):
+        """Returns state of charge in percent"""
+        return self.state_of_charge
 
     def get_host_ip(self):
         """Return current host computer IP address"""
