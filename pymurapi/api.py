@@ -1,4 +1,3 @@
-import time
 from pymurapi.videoserver import VideoServer
 
 class MurApiBase(object):
