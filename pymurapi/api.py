@@ -1,6 +1,7 @@
 import time
 from pymurapi.videoserver import VideoServer
 
+
 class MurApiBase(object):
     """Base class for AUV and Simulator API."""
 
@@ -20,7 +21,7 @@ class MurApiBase(object):
         self.on_delay = 1.5
         self.off_delay = 0.7
 
-        self.leds_colors = list((0,0,0) for i in range(26))
+        self.leds_colors = list((0, 0, 0) for i in range(26))
         self.host_ip = [0, 0, 0, 0]
 
     def _prepare(self):
@@ -48,8 +49,7 @@ class MurApiBase(object):
     def set_rgb_color(self, r, g, b):
         """Set LED color in RGB colorspace. Values are 0 - 255"""
         self.colorRGB = [int(r), int(g), int(b)]
-        self.leds_colors = list((int(r),int(g),int(b)) for i in range(26))
-
+        self.leds_colors = list((int(r), int(g), int(b)) for i in range(26))
 
     def set_single_led_color(self, index, r, g, b):
         """Set single LED color in RGB colorspace. First value is LED number.
@@ -97,7 +97,7 @@ class MurApiBase(object):
     def get_voltage(self):
         """Returns current voltage in volts. i.e. 12.3"""
         return self.voltage
-    
+
     def get_state_of_charge(self):
         """Returns state of charge in percent"""
         return self.state_of_charge
@@ -108,10 +108,10 @@ class MurApiBase(object):
 
     def get_videoserver(self, host=None):
         """Return VideoServer for streaming to MUR IDE camera views"""
-        
+
         if host is None:
             host = self.get_host_ip()
-        
+
         if host == "0.0.0.0":
             host = "10.3.141.0"
 

@@ -1,11 +1,11 @@
-import threading
+from threading import Thread
 import zmq
 import struct
 import time
-from pymurapi import api
+from pymurapi.api import MurApiBase
 
 
-class Usv(api.MurApiBase, threading.Thread):
+class Usv(MurApiBase, Thread):
     battery = 100.0
     lat_to = 0.0
     lng_to = 0.0
@@ -17,14 +17,12 @@ class Usv(api.MurApiBase, threading.Thread):
     gps_yaw = 0.0
 
     def __init__(self):
-        threading.Thread.__init__(self, daemon=False)
-        api.MurApiBase.__init__(self)
+        Thread.__init__(self, daemon=False)
+        MurApiBase.__init__(self)
 
         ctx = zmq.Context()
-        # telemetry bin
-        self.unpacker = struct.Struct('=b9f')
-        # control bin b8h3B2f
-        self.packer = struct.Struct('=4h4B4f')
+        self._unpacker = struct.Struct('=b9f')
+        self._packer = struct.Struct('=4h4B4f')
         self.telemetry_socket = ctx.socket(zmq.SUB)
         self.control_socket = ctx.socket(zmq.PAIR)
 
@@ -47,16 +45,16 @@ class Usv(api.MurApiBase, threading.Thread):
         self.start()
 
     def _update(self):
-        self.gps_satellites,\
-            self.gps_alt,\
-            self.gps_lat,\
-            self.gps_lng,\
-            self.gps_speed,\
-            self.gps_yaw,\
-            self.roll,\
-            self.pitch,\
-            self.yaw,\
-            self.battery = self.unpacker.unpack(self.telemetry_socket.recv())
+        self.gps_satellites, \
+            self.gps_alt, \
+            self.gps_lat, \
+            self.gps_lng, \
+            self.gps_speed, \
+            self.gps_yaw, \
+            self.roll, \
+            self.pitch, \
+            self.yaw, \
+            self.battery = self._unpacker.unpack(self.telemetry_socket.recv())
 
         message = self.packer.pack(self.motors_power[0],
                                    self.motors_power[1],
@@ -101,4 +99,3 @@ class Usv(api.MurApiBase, threading.Thread):
 
     def get_gps_yaw(self):
         return self.gps_yaw
-

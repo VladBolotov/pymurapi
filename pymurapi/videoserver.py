@@ -13,7 +13,7 @@ import subprocess
 import cv2
 import numpy
 
-HELP="""
+HELP = """
 This library can stream OpenCV images to MUR IDE. Usage:
 
     import pymurapi as mur
@@ -26,7 +26,7 @@ This library can stream OpenCV images to MUR IDE. Usage:
     mur_view.stop()
 """
 
-PAGE="""
+PAGE = """
 <html>
     <head>
     <title>Cameras</title>
@@ -49,10 +49,12 @@ DEMO_TEXT = (
     "[1] It works",
 )
 
-GST_PIPE=('gst-launch-1.0 -v souphttpsrc location="http://127.0.0.1:8002/cam_{0}.mjpg" retries=0 keep-alive=true do-timestamp=true is_live=true timeout=0 !'
-        'multipartdemux ! jpegdec ! videoconvert ! videorate ! video/x-raw,format=YUY2,framerate=10/1 ! jpegenc quality=20 ! rtpjpegpay ! udpsink async=true send-duplicates=false sync=false host={1} port=500{0}')
+GST_PIPE = (
+    'gst-launch-1.0 -v souphttpsrc location="http://127.0.0.1:8002/cam_{0}.mjpg" retries=0 keep-alive=true do-timestamp=true is_live=true timeout=0 !'
+    'multipartdemux ! jpegdec ! videoconvert ! videorate ! video/x-raw,format=YUY2,framerate=10/1 ! jpegenc quality=20 ! rtpjpegpay ! udpsink async=true send-duplicates=false sync=false host={1} port=500{0}')
 
-blank_img = numpy.zeros((480,640,3), dtype=numpy.uint8)
+blank_img = numpy.zeros((480, 640, 3), dtype=numpy.uint8)
+
 
 class VideoServer:
     _streams = list()
@@ -141,7 +143,7 @@ class VideoServer:
         self._gst_processes.append(proc)
 
     def __init__(self, streams_count=2, host=None):
-        address=('', 8002)
+        address = ('', 8002)
 
         if host is None:
             print("ERROR: empty host in VideoServer")
@@ -151,7 +153,7 @@ class VideoServer:
 
         print("VideoStream to", self._target_host)
 
-        self._main_thread = threading.Thread(target=self._init_server, args=(streams_count,address))
+        self._main_thread = threading.Thread(target=self._init_server, args=(streams_count, address))
         self._main_thread.start()
 
         for stream_index in range(streams_count):
@@ -175,7 +177,7 @@ class VideoServer:
         self._main_server.shutdown()
 
     def show(self, img, index=0, quality=70):
-        encode_param=[int(cv2.IMWRITE_JPEG_QUALITY), quality]
+        encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), quality]
         ok, jpg_img = cv2.imencode(".jpg", img, encode_param)
 
         if ok:
@@ -185,8 +187,9 @@ class VideoServer:
         font = cv2.FONT_HERSHEY_PLAIN
         for i in range(2):
             img = blank_img.copy()
-            cv2.putText(img,DEMO_TEXT[i],(5,50), font, 3,(255,255,255),2,cv2.LINE_AA)
+            cv2.putText(img, DEMO_TEXT[i], (5, 50), font, 3, (255, 255, 255), 2, cv2.LINE_AA)
             self.show(img, i)
+
 
 if __name__ == '__main__':
     print(HELP)
@@ -194,4 +197,3 @@ if __name__ == '__main__':
     v = VideoServer(host="192.168.1.0")
     v.demo()
     v.stop()
-
