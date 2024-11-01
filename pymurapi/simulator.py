@@ -56,14 +56,12 @@ class Simulator(api.MurApiBase, threading.Thread):
     def get_image_bottom(self):
         return self.bottom_image
     
-    def fake_imshow(*args):
+    def fake_cv(*args):
         pass
 
-    def fake_window(*args):
-        pass
-
-    cv2.imshow = fake_imshow
-    cv2.namedWindow = fake_window
+    cv2.waitKey = fake_cv 
+    cv2.imshow = fake_cv
+    cv2.namedWindow = fake_cv
 
     def run(self):
         while True:
